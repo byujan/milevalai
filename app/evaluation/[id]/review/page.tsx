@@ -102,10 +102,10 @@ export default function ReviewPage() {
             Fix Automatically
           </button>
           <button
-            onClick={() => router.push(`/evaluation/${evaluationId}/bullets`)}
+            onClick={() => router.push(`/evaluation/${evaluationId}/categorize`)}
             className="flex-1 rounded-xl border border-white/10 bg-white/5 px-6 py-3 font-medium transition-colors hover:bg-white/10"
           >
-            Edit Manually
+            Edit Bullets
           </button>
         </div>
 

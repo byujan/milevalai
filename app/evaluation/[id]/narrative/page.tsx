@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { RotateCw, Settings, ArrowRight } from "lucide-react";
@@ -17,34 +17,115 @@ export default function NarrativePage() {
     "Demonstrated exceptional leadership, guiding the platoon through complex operations with outstanding results; sets the standard for peers and subordinates alike."
   );
   const [loading, setLoading] = useState(false);
+  const [regenerating, setRegenerating] = useState(false);
+  const [evaluationData, setEvaluationData] = useState<any>(null);
+
+  // Load evaluation data on mount
+  useEffect(() => {
+    const loadEvaluation = async () => {
+      const supabase = createClient();
+      const { data, error } = await supabase
+        .from("evaluations")
+        .select("*")
+        .eq("id", evaluationId)
+        .single();
+
+      if (error) {
+        console.error("Error loading evaluation:", error);
+      } else {
+        setEvaluationData(data);
+        // Load existing narrative if available
+        if (data.narrative) {
+          setNarrative(data.narrative);
+        }
+      }
+    };
+    loadEvaluation();
+  }, [evaluationId]);
 
   const handleRegenerate = async () => {
-    // TODO: Implement AI regeneration
-    console.log("Regenerating narrative...");
-  };
-
-  const handleNext = async () => {
-    setLoading(true);
-    
-    const supabase = createClient();
-    
-    // Save narrative to database
-    const { error } = await supabase
-      .from("evaluations")
-      .update({ 
-        narrative: narrative,
-        status: "narrative_complete" 
-      })
-      .eq("id", evaluationId);
-
-    if (error) {
-      console.error("Error saving narrative:", error);
-      alert("Error saving narrative. Please try again.");
-      setLoading(false);
+    if (!evaluationData) {
+      alert("Evaluation data not loaded yet. Please try again.");
       return;
     }
 
-    router.push(`/evaluation/${evaluationId}/review`);
+    console.log("🔄 Regenerating narrative with style:", style);
+    setRegenerating(true);
+
+    try {
+      // Call AI narrative endpoint with proper NCOER/OER tone
+      const response = await fetch("/api/ai/narrative", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          bullets: evaluationData.categorized_bullets || [],
+          rankLevel: evaluationData.rank_level,
+          dutyTitle: evaluationData.duty_title,
+          evaluationType: evaluationData.evaluation_type || 'NCOER',
+          style: style,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to regenerate narrative");
+      }
+
+      const { narrative: generatedNarrative } = await response.json();
+      console.log("✅ Narrative regenerated:", {
+        length: generatedNarrative.length,
+        preview: generatedNarrative.substring(0, 100) + "..."
+      });
+      setNarrative(generatedNarrative);
+    } catch (error: any) {
+      console.error("❌ Error regenerating narrative:", error);
+      alert(`Failed to regenerate narrative: ${error.message}. Make sure Ollama is running.`);
+    } finally {
+      setRegenerating(false);
+    }
+  };
+
+  const handleNext = async () => {
+    if (!narrative.trim()) {
+      alert("Please add a narrative before continuing.");
+      return;
+    }
+
+    setLoading(true);
+    
+    try {
+      const supabase = createClient();
+      
+      console.log("💾 Saving narrative:", {
+        evaluationId,
+        narrativeLength: narrative.length,
+        narrativePreview: narrative.substring(0, 50) + "..."
+      });
+      
+      // Save narrative to database
+      const { data, error } = await supabase
+        .from("evaluations")
+        .update({ 
+          narrative: narrative,
+          status: "narrative_complete" 
+        })
+        .eq("id", evaluationId)
+        .select();
+
+      if (error) {
+        console.error("❌ Error saving narrative:", error);
+        alert(`Error saving narrative: ${error.message}`);
+        setLoading(false);
+        return;
+      }
+
+      console.log("✅ Narrative saved successfully:", data);
+      router.push(`/evaluation/${evaluationId}/review`);
+    } catch (error) {
+      console.error("❌ Unexpected error:", error);
+      alert("An unexpected error occurred. Please try again.");
+      setLoading(false);
+    }
   };
 
   return (
@@ -133,10 +214,11 @@ export default function NarrativePage() {
             <div className="flex gap-2">
               <button
                 onClick={handleRegenerate}
-                className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm hover:bg-white/10"
+                disabled={regenerating}
+                className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-50"
               >
-                <RotateCw className="h-4 w-4" />
-                Regenerate
+                <RotateCw className={`h-4 w-4 ${regenerating ? 'animate-spin' : ''}`} />
+                {regenerating ? 'Regenerating...' : 'Regenerate'}
               </button>
               <button className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm hover:bg-white/10">
                 <Settings className="h-4 w-4" />

@@ -16,24 +16,77 @@ export default function BulletsPage() {
   const router = useRouter();
   const evaluationId = params.id as string;
 
-  const [bullets, setBullets] = useState<Bullet[]>([
-    {
-      id: "1",
-      content: "Exceeded all leadership expectations; executed 12 training events achieving 100% certification.",
-    },
-    {
-      id: "2",
-      content: "Demonstrated tactical competence; optimized readiness through effective team development.",
-    },
-    {
-      id: "3",
-      content: "Consistently placed the organization's objectives above personal interest, earning the respect of peers.",
-    },
-  ]);
+  const [bullets, setBullets] = useState<Bullet[]>([]);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editContent, setEditContent] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true); // Start with loading true
+  const [regenerating, setRegenerating] = useState<string | null>(null);
+  const [evaluationData, setEvaluationData] = useState<any>(null);
   const [style, setStyle] = useState<"concise" | "narrative">("concise");
+
+  // Load evaluation data and bullets on mount
+  useEffect(() => {
+    const loadEvaluation = async () => {
+      const supabase = createClient();
+      const { data, error } = await supabase
+        .from("evaluations")
+        .select("*")
+        .eq("id", evaluationId)
+        .single();
+
+      if (error) {
+        console.error("Error loading evaluation:", error);
+        setLoading(false);
+        return;
+      }
+
+      setEvaluationData(data);
+
+      // Load bullets from database - try multiple sources
+      let loadedBullets: Bullet[] = [];
+
+      // 1. Try to load from 'bullets' field (legacy)
+      if (data.bullets && Array.isArray(data.bullets) && data.bullets.length > 0) {
+        console.log("📦 Loading bullets from 'bullets' field:", data.bullets.length);
+        loadedBullets = data.bullets.map((bullet: any, index: number) => ({
+          id: bullet.id || `bullet-${index}`,
+          content: bullet.content || bullet,
+          category: bullet.category,
+        }));
+      }
+      // 2. Try to load from 'categorized_bullets' field (v1.6 flow)
+      else if (data.categorized_bullets && Array.isArray(data.categorized_bullets) && data.categorized_bullets.length > 0) {
+        console.log("📦 Loading bullets from 'categorized_bullets' field:", data.categorized_bullets.length);
+        loadedBullets = data.categorized_bullets.map((bullet: any, index: number) => ({
+          id: bullet.id || `bullet-${index}`,
+          content: bullet.enhanced || bullet.content || bullet.original || bullet,
+          category: bullet.category,
+        }));
+      }
+      // 3. Fall back to default bullets if nothing exists
+      else {
+        console.log("📦 No bullets in database, using default bullets");
+        loadedBullets = [
+          {
+            id: "1",
+            content: "Exceeded all leadership expectations; executed 12 training events achieving 100% certification.",
+          },
+          {
+            id: "2",
+            content: "Demonstrated tactical competence; optimized readiness through effective team development.",
+          },
+          {
+            id: "3",
+            content: "Consistently placed the organization's objectives above personal interest, earning the respect of peers.",
+          },
+        ];
+      }
+
+      setBullets(loadedBullets);
+      setLoading(false);
+    };
+    loadEvaluation();
+  }, [evaluationId]);
 
   const handleEdit = (bullet: Bullet) => {
     setEditingId(bullet.id);
@@ -47,8 +100,69 @@ export default function BulletsPage() {
   };
 
   const handleRegenerate = async (id: string) => {
-    // TODO: Implement AI regeneration
-    console.log("Regenerating bullet:", id);
+    if (!evaluationData) {
+      alert("Evaluation data not loaded yet. Please try again.");
+      return;
+    }
+
+    const bullet = bullets.find(b => b.id === id);
+    if (!bullet) {
+      console.error("❌ Bullet not found:", id);
+      return;
+    }
+
+    console.log("🔄 Regenerating bullet:", {
+      id,
+      originalContent: bullet.content.substring(0, 50) + "...",
+      category: bullet.category || "Achieves",
+      evaluationType: evaluationData.evaluation_type,
+      rankLevel: evaluationData.rank_level
+    });
+
+    setRegenerating(id);
+
+    try {
+      // Determine category based on bullet content (or default to "Achieves")
+      const category = bullet.category || "Achieves";
+
+      // Call AI enhance endpoint with proper NCOER/OER tone
+      const response = await fetch("/api/ai/enhance", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          bullet: bullet.content,
+          category: category,
+          rankLevel: evaluationData.rank_level,
+          evaluationType: evaluationData.evaluation_type || 'NCOER',
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to regenerate bullet");
+      }
+
+      const { enhanced } = await response.json();
+      console.log("✅ Bullet regenerated:", {
+        id,
+        originalLength: bullet.content.length,
+        enhancedLength: enhanced.length,
+        enhancedPreview: enhanced.substring(0, 50) + "..."
+      });
+
+      // Update bullet with regenerated content
+      const updatedBullets = bullets.map(b => 
+        b.id === id ? { ...b, content: enhanced } : b
+      );
+      setBullets(updatedBullets);
+      
+      console.log("📝 Bullets state updated, new count:", updatedBullets.length);
+    } catch (error: any) {
+      console.error("❌ Error regenerating bullet:", error);
+      alert(`Failed to regenerate bullet: ${error.message}. Make sure Ollama is running.`);
+    } finally {
+      setRegenerating(null);
+    }
   };
 
   const handleAddBullet = () => {
@@ -62,28 +176,75 @@ export default function BulletsPage() {
   };
 
   const handleNext = async () => {
-    setLoading(true);
-    
-    const supabase = createClient();
-    
-    // Save bullets to database
-    const { error } = await supabase
-      .from("evaluations")
-      .update({ 
-        bullets: bullets,
-        status: "bullets_complete" 
-      })
-      .eq("id", evaluationId);
-
-    if (error) {
-      console.error("Error saving bullets:", error);
-      alert("Error saving bullets. Please try again.");
-      setLoading(false);
+    if (bullets.length === 0) {
+      alert("Please add at least one bullet before continuing.");
       return;
     }
 
-    router.push(`/evaluation/${evaluationId}/narrative`);
+    setLoading(true);
+    
+    try {
+      const supabase = createClient();
+      
+      console.log("💾 Saving bullets:", {
+        evaluationId,
+        bulletCount: bullets.length,
+        bullets: bullets.map(b => ({
+          id: b.id,
+          contentLength: b.content.length,
+          contentPreview: b.content.substring(0, 50) + "..."
+        }))
+      });
+      
+      // Save bullets to database
+      const { data, error } = await supabase
+        .from("evaluations")
+        .update({ 
+          bullets: bullets,
+          status: "bullets_complete" 
+        })
+        .eq("id", evaluationId)
+        .select(); // Select to verify the update
+
+      if (error) {
+        console.error("❌ Error saving bullets:", error);
+        alert(`Error saving bullets: ${error.message}. Please try again.`);
+        setLoading(false);
+        return;
+      }
+
+      console.log("✅ Bullets saved successfully:", {
+        savedCount: data?.[0]?.bullets?.length || 0,
+        status: data?.[0]?.status
+      });
+
+      // Verify the bullets were actually saved
+      if (!data || !data[0] || !data[0].bullets) {
+        console.error("❌ Warning: Bullets may not have been saved correctly");
+        alert("Warning: Bullets may not have been saved. Please check your data.");
+        setLoading(false);
+        return;
+      }
+
+      router.push(`/evaluation/${evaluationId}/narrative`);
+    } catch (error: any) {
+      console.error("❌ Unexpected error saving bullets:", error);
+      alert("An unexpected error occurred. Please try again.");
+      setLoading(false);
+    }
   };
+
+  if (loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-black text-white">
+        <div className="text-center">
+          <div className="mb-4 inline-flex h-16 w-16 animate-spin items-center justify-center rounded-full border-4 border-blue-500 border-t-transparent"></div>
+          <h2 className="mb-2 text-2xl font-bold">Loading Bullets...</h2>
+          <p className="text-gray-400">Loading your performance bullets from the database</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-black px-4 py-8 text-white">
@@ -184,17 +345,19 @@ export default function BulletsPage() {
                   <div className="flex gap-2">
                     <button
                       onClick={() => handleEdit(bullet)}
-                      className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm hover:bg-white/10"
+                      disabled={regenerating === bullet.id}
+                      className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       <Pencil className="h-4 w-4" />
                       Edit
                     </button>
                     <button
                       onClick={() => handleRegenerate(bullet.id)}
-                      className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm hover:bg-white/10"
+                      disabled={regenerating === bullet.id}
+                      className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-50"
                     >
-                      <RotateCw className="h-4 w-4" />
-                      Regenerate
+                      <RotateCw className={`h-4 w-4 ${regenerating === bullet.id ? 'animate-spin' : ''}`} />
+                      {regenerating === bullet.id ? 'Regenerating...' : 'Regenerate'}
                     </button>
                     <button className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm hover:bg-white/10">
                       <ThumbsUp className="h-4 w-4" />

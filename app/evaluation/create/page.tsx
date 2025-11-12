@@ -57,7 +57,7 @@ export default function CreateEvaluation() {
       return;
     }
 
-    router.push(`/evaluation/${data.id}/bullets`);
+    router.push(`/evaluation/${data.id}/predecessor`);
   };
 
   return (
