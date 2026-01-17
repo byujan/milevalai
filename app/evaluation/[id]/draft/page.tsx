@@ -108,7 +108,7 @@ export default function BulletDraftPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-black px-4 py-8 text-white">
+    <div className="px-4 py-8">
       <div className="mx-auto max-w-4xl">
         <div className="mb-8">
           <h1 className="mb-2 text-3xl font-bold">Enter Your Accomplishments</h1>
@@ -122,14 +122,14 @@ export default function BulletDraftPage() {
         <div className="mb-6 flex items-center justify-between">
           <button
             onClick={() => setShowExamples(!showExamples)}
-            className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-4 py-2 text-sm transition-colors hover:bg-white/10"
+            className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-black shadow-sm px-4 py-2 text-sm transition-colors hover:bg-white/10"
           >
             <FileText className="h-4 w-4" />
             {showExamples ? "Hide" : "Show"} Examples
           </button>
           <button
             onClick={handlePaste}
-            className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-4 py-2 text-sm transition-colors hover:bg-white/10"
+            className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-black shadow-sm px-4 py-2 text-sm transition-colors hover:bg-white/10"
           >
             <FileText className="h-4 w-4" />
             Paste from Clipboard
@@ -154,7 +154,7 @@ export default function BulletDraftPage() {
         )}
 
         {/* Guidance */}
-        <div className="mb-6 rounded-lg border border-white/10 bg-white/5 p-4 text-sm text-gray-400">
+        <div className="mb-6 rounded-lg border border-white/10 bg-black shadow-sm p-4 text-sm text-gray-400">
           <strong className="text-white">Tips:</strong> Use short, results-oriented
           bullets. Include numbers and measurable outcomes when possible. Keep it
           simple—AI will enhance and categorize later.
@@ -165,7 +165,7 @@ export default function BulletDraftPage() {
           {bullets.map((bullet, index) => (
             <div
               key={index}
-              className="group relative rounded-xl border border-white/10 bg-white/5 p-4 transition-colors hover:border-white/20"
+              className="group relative rounded-xl border border-white/10 bg-black shadow-sm p-4 transition-colors hover:border-white/20"
             >
               <div className="mb-2 flex items-center justify-between">
                 <span className="text-sm text-gray-400">Bullet {index + 1}</span>
@@ -195,7 +195,7 @@ export default function BulletDraftPage() {
         {/* Add Bullet Button */}
         <button
           onClick={addBullet}
-          className="mt-4 w-full rounded-xl border border-dashed border-white/20 bg-white/5 py-4 text-sm font-medium text-gray-400 transition-colors hover:border-white/30 hover:text-white"
+          className="mt-4 w-full rounded-xl border border-dashed border-white/20 bg-black shadow-sm py-4 text-sm font-medium text-gray-400 transition-colors hover:border-white/30 hover:text-white"
         >
           <Plus className="mx-auto h-5 w-5" />
         </button>

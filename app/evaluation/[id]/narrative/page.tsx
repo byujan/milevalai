@@ -129,7 +129,7 @@ export default function NarrativePage() {
   };
 
   return (
-    <div className="min-h-screen bg-black px-4 py-8 text-white">
+    <div className="px-4 py-8">
       <div className="mx-auto max-w-4xl">
         <div className="mb-8">
           <h1 className="mb-2 text-3xl font-bold">Summary Narrative</h1>
@@ -145,7 +145,7 @@ export default function NarrativePage() {
             className={`rounded-lg border px-4 py-2 text-sm font-medium transition-all ${
               style === "concise"
                 ? "border-blue-500 bg-blue-500/10 text-blue-400"
-                : "border-white/10 bg-white/5 text-gray-400 hover:border-white/20"
+                : "border-white/10 bg-black shadow-sm text-gray-400 hover:border-white/20"
             }`}
           >
             Concise & Strong
@@ -155,7 +155,7 @@ export default function NarrativePage() {
             className={`rounded-lg border px-4 py-2 text-sm font-medium transition-all ${
               style === "narrative"
                 ? "border-blue-500 bg-blue-500/10 text-blue-400"
-                : "border-white/10 bg-white/5 text-gray-400 hover:border-white/20"
+                : "border-white/10 bg-black shadow-sm text-gray-400 hover:border-white/20"
             }`}
           >
             Narrative & Impactful
@@ -187,7 +187,7 @@ export default function NarrativePage() {
               type="checkbox"
               checked={maintainTone}
               onChange={(e) => setMaintainTone(e.target.checked)}
-              className="h-5 w-5 rounded border-white/10 bg-white/5 text-blue-600 focus:ring-2 focus:ring-blue-500/20"
+              className="h-5 w-5 rounded border-white/10 bg-black shadow-sm text-blue-400 focus:ring-2 focus:ring-blue-500/20"
             />
             <span className="text-sm text-gray-300">
               Maintain consistent tone with Senior Rater
@@ -196,11 +196,11 @@ export default function NarrativePage() {
         </div>
 
         {/* Narrative Content */}
-        <div className="mb-6 rounded-xl border border-white/10 bg-white/5 p-6">
+        <div className="mb-6 rounded-xl border border-white/10 bg-black shadow-sm p-6">
           <textarea
             value={narrative}
             onChange={(e) => setNarrative(e.target.value)}
-            className="mb-4 w-full resize-none rounded-lg border border-white/10 bg-white/5 p-4 text-lg leading-relaxed text-white focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+            className="mb-4 w-full resize-none rounded-lg border border-white/10 bg-black shadow-sm p-4 text-lg leading-relaxed text-white focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
             rows={6}
           />
           
@@ -215,12 +215,12 @@ export default function NarrativePage() {
               <button
                 onClick={handleRegenerate}
                 disabled={regenerating}
-                className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-50"
+                className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-black shadow-sm px-3 py-2 text-sm hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <RotateCw className={`h-4 w-4 ${regenerating ? 'animate-spin' : ''}`} />
                 {regenerating ? 'Regenerating...' : 'Regenerate'}
               </button>
-              <button className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm hover:bg-white/10">
+              <button className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-black shadow-sm px-3 py-2 text-sm hover:bg-white/10">
                 <Settings className="h-4 w-4" />
               </button>
             </div>

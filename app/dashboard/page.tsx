@@ -1,8 +1,9 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
-import { Plus, FileText, LogOut } from "lucide-react";
+import { Plus, FileText } from "lucide-react";
 import { DeleteEvaluationButton } from "@/app/dashboard/delete-button";
+import AppHeader from "@/components/app-header";
 
 export default async function Dashboard() {
   const supabase = await createClient();
@@ -22,23 +23,7 @@ export default async function Dashboard() {
 
   return (
     <div className="min-h-screen bg-black text-white">
-      <header className="border-b border-white/10 bg-white/5">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4">
-          <h1 className="text-xl font-bold">MilEvalAI</h1>
-          <div className="flex items-center gap-4">
-            <span className="text-sm text-gray-400">{user.email}</span>
-            <form action="/auth/signout" method="post">
-              <button
-                type="submit"
-                className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm transition-colors hover:bg-white/10"
-              >
-                <LogOut className="h-4 w-4" />
-                Sign Out
-              </button>
-            </form>
-          </div>
-        </div>
-      </header>
+      <AppHeader />
 
       <main className="mx-auto max-w-7xl px-4 py-12">
         <div className="mb-8 flex items-center justify-between">
@@ -62,7 +47,7 @@ export default async function Dashboard() {
             {evaluations.map((evaluation: any) => (
               <div
                 key={evaluation.id}
-                className="group rounded-xl border border-white/10 bg-white/5 p-6 transition-colors hover:border-white/20 hover:bg-white/10"
+                className="group rounded-xl border border-white/10 bg-black shadow-sm p-6 transition-colors hover:border-white/20 hover:bg-white/10"
               >
                 <Link
                   href={(() => {
@@ -141,7 +126,7 @@ export default async function Dashboard() {
             ))}
           </div>
         ) : (
-          <div className="rounded-xl border border-dashed border-white/20 bg-white/5 p-12 text-center">
+          <div className="rounded-xl border border-dashed border-white/20 bg-black shadow-sm p-12 text-center">
             <FileText className="mx-auto mb-4 h-12 w-12 text-gray-500" />
             <h3 className="mb-2 text-lg font-semibold">
               No evaluations yet

@@ -110,8 +110,8 @@ export default function PredecessorUpload() {
         throw updateError;
       }
 
-      // Navigate to bullet drafting
-      router.push(`/evaluation/${evaluationId}/draft`);
+      // Navigate to admin data screen
+      router.push(`/evaluation/${evaluationId}/admin`);
     } catch (error) {
       console.error("Error uploading file:", error);
       alert("Failed to upload file. Please try again.");
@@ -121,14 +121,14 @@ export default function PredecessorUpload() {
   };
 
   const handleSkip = () => {
-    router.push(`/evaluation/${evaluationId}/draft`);
+    router.push(`/evaluation/${evaluationId}/admin`);
   };
 
   return (
-    <div className="min-h-screen bg-black px-4 py-8 text-white">
-      <div className="mx-auto max-w-3xl">
+    <div className="px-4 py-8">
+      <div className="mx-auto max-w-5xl">
         <div className="mb-12 text-center">
-          <h1 className="mb-2 text-4xl font-bold">Upload Predecessor Evaluation</h1>
+          <h1 className="mb-2 text-4xl font-bold text-white">Upload Predecessor Evaluation</h1>
           <p className="text-gray-400">
             Optional: Upload your previous evaluation to help AI match tone and style
           </p>
@@ -143,11 +143,11 @@ export default function PredecessorUpload() {
             className={`rounded-xl border-2 border-dashed p-12 text-center transition-colors ${
               dragActive
                 ? "border-blue-500 bg-blue-500/10"
-                : "border-white/20 bg-white/5"
+                : "border-white/20 bg-white/10"
             }`}
           >
-            <Upload className="mx-auto mb-4 h-16 w-16 text-gray-500" />
-            <h3 className="mb-2 text-lg font-semibold">
+            <Upload className="mx-auto mb-4 h-16 w-16 text-gray-400" />
+            <h3 className="mb-2 text-lg font-semibold text-white">
               Drop your file here or click to browse
             </h3>
             <p className="mb-6 text-sm text-gray-400">
@@ -169,12 +169,12 @@ export default function PredecessorUpload() {
             </label>
           </div>
         ) : (
-          <div className="rounded-xl border border-white/10 bg-white/5 p-6">
+          <div className="rounded-xl border border-white/10 bg-black p-6 shadow-sm">
             <div className="mb-4 flex items-start justify-between">
               <div className="flex items-start gap-4">
                 <FileText className="h-10 w-10 text-blue-400" />
                 <div>
-                  <h3 className="font-semibold">{file.name}</h3>
+                  <h3 className="font-semibold text-white">{file.name}</h3>
                   <p className="text-sm text-gray-400">
                     {(file.size / 1024).toFixed(2)} KB
                   </p>
@@ -192,7 +192,7 @@ export default function PredecessorUpload() {
             {analyzing && (
               <div className="mb-4 rounded-lg border border-blue-500/20 bg-blue-500/10 p-4">
                 <div className="mb-2 flex items-center gap-2">
-                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-blue-400 border-t-transparent"></div>
+                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-blue-600 border-t-transparent"></div>
                   <span className="text-sm font-medium text-blue-400">
                     Analyzing predecessor evaluation...
                   </span>
@@ -225,9 +225,9 @@ export default function PredecessorUpload() {
           </button>
         </div>
 
-        <div className="mt-8 rounded-xl border border-white/10 bg-white/5 p-6">
-          <h3 className="mb-4 font-semibold">Why upload a predecessor?</h3>
-          <ul className="space-y-2 text-sm text-gray-400">
+        <div className="mt-8 rounded-xl border border-white/10 bg-white/10 p-6">
+          <h3 className="mb-4 font-semibold text-white">Why upload a predecessor?</h3>
+          <ul className="space-y-2 text-sm text-gray-300">
             <li className="flex items-start gap-2">
               <span className="text-blue-400">•</span>
               <span>AI learns your rater's writing style and tone</span>

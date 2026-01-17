@@ -351,7 +351,7 @@ export default function CategorizePage() {
   }
 
   return (
-    <div className="min-h-screen bg-black px-4 py-8 text-white">
+    <div className="px-4 py-8">
       <div className="mx-auto max-w-6xl">
         <div className="mb-8">
           <h1 className="mb-2 text-3xl font-bold">AI-Categorized Bullets</h1>
@@ -367,7 +367,7 @@ export default function CategorizePage() {
             className={`flex-shrink-0 rounded-lg border px-4 py-3 text-left transition-all ${
               activeCategory === 'All'
                 ? "border-blue-500 bg-blue-500/10 text-blue-400"
-                : "border-white/10 bg-white/5 text-gray-400 hover:border-white/20"
+                : "border-white/10 bg-black shadow-sm text-gray-400 hover:border-white/20"
             }`}
           >
             <div className="font-semibold">All</div>
@@ -384,7 +384,7 @@ export default function CategorizePage() {
                 className={`flex-shrink-0 rounded-lg border px-4 py-3 text-left transition-all ${
                   activeCategory === category
                     ? "border-blue-500 bg-blue-500/10 text-blue-400"
-                    : "border-white/10 bg-white/5 text-gray-400 hover:border-white/20"
+                    : "border-white/10 bg-black shadow-sm text-gray-400 hover:border-white/20"
                 }`}
               >
                 <div className="font-semibold">{category}</div>
@@ -398,7 +398,7 @@ export default function CategorizePage() {
 
         {/* Category Description */}
         {activeCategory !== 'All' && (
-          <div className="mb-6 rounded-lg border border-white/10 bg-white/5 p-4 text-sm text-gray-400">
+          <div className="mb-6 rounded-lg border border-white/10 bg-black shadow-sm p-4 text-sm text-gray-400">
             <strong className="text-white">{activeCategory}:</strong>{" "}
             {categoryDescriptions[activeCategory as keyof typeof categoryDescriptions]}
           </div>
@@ -407,14 +407,14 @@ export default function CategorizePage() {
         {/* Bullets in Category */}
         <div className="space-y-4">
           {bulletsInCategory.length === 0 && !showAddBullet ? (
-            <div className="rounded-xl border border-dashed border-white/20 bg-white/5 p-12 text-center text-gray-400">
+            <div className="rounded-xl border border-dashed border-white/20 bg-black shadow-sm p-12 text-center text-gray-400">
               No bullets in this category yet
             </div>
           ) : (
             bulletsInCategory.map((bullet) => (
               <div
                 key={bullet.id}
-                className="rounded-xl border border-white/10 bg-white/5 p-6"
+                className="rounded-xl border border-white/10 bg-black shadow-sm p-6"
               >
                 {/* Category and Actions Header */}
                 <div className="mb-4 flex items-center justify-between">
@@ -428,7 +428,7 @@ export default function CategorizePage() {
                     <select
                       value={bullet.category}
                       onChange={(e) => handleChangeCategory(bullet.id, e.target.value)}
-                      className="rounded-lg border border-white/10 bg-white/5 px-2 py-1 text-xs text-white focus:border-blue-500 focus:outline-none"
+                      className="rounded-lg border border-white/10 bg-black shadow-sm px-2 py-1 text-xs text-white focus:border-blue-500 focus:outline-none"
                     >
                       {categories.map((cat) => (
                         <option key={cat} value={cat}>
@@ -480,7 +480,7 @@ export default function CategorizePage() {
                         </button>
                         <button
                           onClick={handleCancelEdit}
-                          className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm font-medium transition-colors hover:bg-white/10"
+                          className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-black shadow-sm px-3 py-2 text-sm font-medium transition-colors hover:bg-white/10"
                         >
                           <X className="h-4 w-4" />
                           Cancel
@@ -498,14 +498,14 @@ export default function CategorizePage() {
                     <>
                       <button
                         onClick={() => handleEditBullet(bullet.id)}
-                        className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm transition-colors hover:bg-white/10"
+                        className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-black shadow-sm px-3 py-2 text-sm transition-colors hover:bg-white/10"
                       >
                         <Pencil className="h-4 w-4" />
                         Edit
                       </button>
                       <button
                         onClick={() => regenerateBullet(bullet.id)}
-                        className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm transition-colors hover:bg-white/10"
+                        className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-black shadow-sm px-3 py-2 text-sm transition-colors hover:bg-white/10"
                       >
                         <RotateCw className="h-4 w-4" />
                         Regenerate
@@ -528,7 +528,7 @@ export default function CategorizePage() {
               <select
                 value={newBulletCategory}
                 onChange={(e) => setNewBulletCategory(e.target.value)}
-                className="w-full rounded-lg border border-white/10 bg-white/5 p-2 text-white focus:border-blue-500 focus:outline-none"
+                className="w-full rounded-lg border border-white/10 bg-black shadow-sm p-2 text-white focus:border-blue-500 focus:outline-none"
               >
                 {categories.map((cat) => (
                   <option key={cat} value={cat}>
@@ -572,7 +572,7 @@ export default function CategorizePage() {
                   setShowAddBullet(false);
                   setNewBulletText("");
                 }}
-                className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium transition-colors hover:bg-white/10"
+                className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-black shadow-sm px-4 py-2 text-sm font-medium transition-colors hover:bg-white/10"
               >
                 <X className="h-4 w-4" />
                 Cancel
@@ -585,7 +585,7 @@ export default function CategorizePage() {
               setShowAddBullet(true);
               setNewBulletCategory(activeCategory === 'All' ? 'Character' : activeCategory);
             }}
-            className="mt-6 w-full rounded-xl border border-dashed border-white/20 bg-white/5 px-6 py-4 text-sm font-medium text-gray-400 transition-colors hover:border-white/30 hover:text-white"
+            className="mt-6 w-full rounded-xl border border-dashed border-white/20 bg-black shadow-sm px-6 py-4 text-sm font-medium text-gray-400 transition-colors hover:border-white/30 hover:text-white"
           >
             <Plus className="mx-auto h-5 w-5" />
             <span className="mt-2 block">Add New Bullet</span>
@@ -593,7 +593,7 @@ export default function CategorizePage() {
         )}
 
         {/* Continue Button */}
-        <div className="mt-8 flex items-center justify-between rounded-xl border border-white/10 bg-white/5 p-6">
+        <div className="mt-8 flex items-center justify-between rounded-xl border border-white/10 bg-black shadow-sm p-6">
           <div>
             <h3 className="mb-1 font-semibold">Ready to Continue?</h3>
             <p className="text-sm text-gray-400">

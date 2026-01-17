@@ -104,7 +104,7 @@ export default function RaterCommentsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-black px-4 py-8 text-white">
+    <div className="px-4 py-8">
       <div className="mx-auto max-w-4xl">
         <div className="mb-8">
           <h1 className="mb-2 text-3xl font-bold">Rater Comments</h1>
@@ -131,7 +131,7 @@ export default function RaterCommentsPage() {
         )}
 
         {/* Comments Editor */}
-        <div className="mb-6 rounded-xl border border-white/10 bg-white/5 p-6">
+        <div className="mb-6 rounded-xl border border-white/10 bg-black shadow-sm p-6">
           <div className="mb-4 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Sparkles className="h-5 w-5 text-blue-400" />
@@ -140,7 +140,7 @@ export default function RaterCommentsPage() {
             <button
               onClick={() => generateComments()}
               disabled={generating}
-              className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm transition-colors hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-50"
+              className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-black shadow-sm px-3 py-2 text-sm transition-colors hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-50"
             >
               <RotateCw className="h-4 w-4" />
               Regenerate
@@ -164,7 +164,7 @@ export default function RaterCommentsPage() {
         </div>
 
         {/* Guidelines */}
-        <div className="mb-6 rounded-lg border border-white/10 bg-white/5 p-4">
+        <div className="mb-6 rounded-lg border border-white/10 bg-black shadow-sm p-4">
           <h3 className="mb-3 text-sm font-semibold">Rater Comment Guidelines:</h3>
           <ul className="space-y-2 text-sm text-gray-400">
             <li className="flex items-start gap-2">

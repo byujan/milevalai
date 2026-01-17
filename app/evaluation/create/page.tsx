@@ -90,7 +90,7 @@ export default function CreateEvaluation() {
               value={dutyTitle}
               onChange={(e) => setDutyTitle(e.target.value)}
               placeholder="Company First Sergeant"
-              className="w-full rounded-xl border border-white/10 bg-white/5 px-6 py-4 text-lg text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+              className="w-full rounded-xl border border-white/10 bg-black shadow-sm px-6 py-4 text-lg text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
             />
           </div>
 
@@ -103,7 +103,7 @@ export default function CreateEvaluation() {
                 className={`rounded-xl border p-6 text-left transition-all ${
                   evaluationType === "NCOER"
                     ? "border-blue-500 bg-blue-500/10"
-                    : "border-white/10 bg-white/5 hover:border-white/20"
+                    : "border-white/10 bg-black shadow-sm hover:border-white/20"
                 }`}
               >
                 <h3 className="mb-2 text-2xl font-bold">NCOER</h3>
@@ -116,7 +116,7 @@ export default function CreateEvaluation() {
                 className={`rounded-xl border p-6 text-left transition-all ${
                   evaluationType === "OER"
                     ? "border-blue-500 bg-blue-500/10"
-                    : "border-white/10 bg-white/5 hover:border-white/20"
+                    : "border-white/10 bg-black shadow-sm hover:border-white/20"
                 }`}
               >
                 <h3 className="mb-2 text-2xl font-bold">OER</h3>
@@ -136,7 +136,7 @@ export default function CreateEvaluation() {
                   className={`rounded-xl border p-4 text-left transition-all ${
                     evaluationSubtype === type
                       ? "border-blue-500 bg-blue-500/10"
-                      : "border-white/10 bg-white/5 hover:border-white/20"
+                      : "border-white/10 bg-black shadow-sm hover:border-white/20"
                   }`}
                 >
                   <h4 className="font-semibold">{type}</h4>
@@ -168,7 +168,7 @@ export default function CreateEvaluation() {
                       className={`rounded-xl border p-4 text-left transition-all ${
                         rankLevel === rank
                           ? "border-blue-500 bg-blue-500/10"
-                          : "border-white/10 bg-white/5 hover:border-white/20"
+                          : "border-white/10 bg-black shadow-sm hover:border-white/20"
                       }`}
                     >
                       <h4 className="font-semibold">{rank}</h4>
@@ -189,7 +189,7 @@ export default function CreateEvaluation() {
                       className={`rounded-xl border p-4 text-left transition-all ${
                         rankLevel === rank
                           ? "border-blue-500 bg-blue-500/10"
-                          : "border-white/10 bg-white/5 hover:border-white/20"
+                          : "border-white/10 bg-black shadow-sm hover:border-white/20"
                       }`}
                     >
                       <h4 className="font-semibold">{rank}</h4>

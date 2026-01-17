@@ -1,6 +1,8 @@
 // Ollama Integration for MilEvalAI
 // Uses llama3.2 for AI-powered bullet categorization and enhancement
 
+import { RankLevel, EvaluationType, SeniorRaterAssessment, OERPotentialRating } from '@/lib/types/database';
+
 interface OllamaResponse {
   model: string;
   response: string;
@@ -14,9 +16,60 @@ export interface CategoryResult {
   original: string;
 }
 
+// Senior Rater structured output
+export interface SeniorRaterOutput {
+  enumeration: string;
+  promotion: string;
+  school_recommendation: string;
+  potential_next_assignment: string;
+  full_narrative: string;
+  successive_assignments: string[];
+  broadening_assignment?: string;
+}
+
 // Default Ollama API endpoint (running locally)
 const OLLAMA_API_URL = process.env.OLLAMA_API_URL || 'http://localhost:11434';
 const MODEL = 'llama3.2';
+
+// ============================================
+// Form-Specific Configuration
+// ============================================
+
+// School recommendations by rank level
+const SCHOOL_RECOMMENDATIONS: Record<RankLevel, string[]> = {
+  'E5': ['BLC', 'ALC', 'Ranger School', 'Air Assault', 'Airborne'],
+  'E6-E8': ['ALC', 'SLC', 'MLC', 'Master Gunner', 'Battle Staff', 'Ranger School'],
+  'E9': ['SLC', 'SGM Academy', 'MLC', 'Senior Enlisted Joint PME'],
+  'O1-O3': ['CCC', 'Ranger School', 'Airborne', 'Air Assault', 'Pathfinder', 'BOLC'],
+  'O4-O5': ['ILE', 'ILE Resident', 'CGSC', 'SAMS', 'Joint School', 'Airborne'],
+  'O6': ['SSC', 'War College', 'JAWS', 'Joint PME II', 'Defense Strategy Course', 'NWC'],
+};
+
+// Typical next assignments by rank level
+const NEXT_ASSIGNMENTS: Record<RankLevel, string[]> = {
+  'E5': ['Squad Leader', 'Section Leader', 'Team Leader', 'Instructor', 'Drill Sergeant'],
+  'E6-E8': ['Platoon Sergeant', 'Operations NCO', 'First Sergeant', 'Senior Instructor', 'BN/BDE Staff NCO'],
+  'E9': ['Command Sergeant Major', 'Division/Corps Staff', 'Nominative CSM', 'TRADOC Assignment'],
+  'O1-O3': ['Company Commander', 'XO', 'S3 Air', 'Assistant S3', 'Staff Officer'],
+  'O4-O5': ['Battalion XO', 'Battalion S3', 'Brigade S3', 'Division Staff', 'Joint Staff'],
+  'O6': ['Brigade Commander', 'Division G3/G5', 'Joint Staff', 'HQDA Staff Director', 'Combatant Command'],
+};
+
+// Rank-specific language for bullet enhancement
+const getRankSpecificGuidance = (rankLevel: RankLevel, evalType: EvaluationType): string => {
+  const isOER = evalType === 'OER';
+
+  const guidance: Record<RankLevel, string> = {
+    'E5': `Direct-level NCO language: Focus on hands-on leadership, Soldier training, equipment maintenance, tactical execution. Use verbs like: led, trained, maintained, executed, supervised, mentored.`,
+    'E6-E8': `Organizational-level NCO language: Focus on systems management, program oversight, training management, readiness, junior NCO development. Use verbs like: managed, developed, implemented, synchronized, resourced, standardized.`,
+    'E9': `Strategic-level NCO language: Focus on enterprise-wide impact, organizational transformation, talent management, doctrine development. Use verbs like: influenced, shaped, transformed, institutionalized, championed.`,
+    'O1-O3': `Company-grade officer language: Focus on planning, coordinating, decision-making, resource management, mission command. Use verbs like: planned, coordinated, directed, resourced, synchronized.`,
+    'O4-O5': `Field-grade officer language: Focus on organizational leadership, enterprise operations, staff integration, joint coordination. Use verbs like: orchestrated, integrated, synchronized, operationalized, enabled.`,
+    'O6': `Strategic-grade officer language: Focus on enterprise-level impact, strategic vision, interagency coordination, national-level mission. Use verbs like: directed, shaped, influenced, transformed, modernized, strategized.`,
+  };
+
+  return guidance[rankLevel] || guidance['E6-E8'];
+};
 
 /**
  * Call Ollama API with a prompt
@@ -111,22 +164,37 @@ Respond ONLY with a JSON object in this format:
 export async function enhanceBullet(
   bullet: string,
   category: string,
-  rankLevel: string,
-  evaluationType: 'NCOER' | 'OER' = 'NCOER'
+  rankLevel: RankLevel,
+  evaluationType: EvaluationType = 'NCOER'
 ): Promise<string> {
   console.log(`🔄 REGENERATE: Enhancing ${evaluationType} bullet for ${rankLevel} in category "${category}"`);
   const isOER = evaluationType === 'OER';
-  
+  const rankGuidance = getRankSpecificGuidance(rankLevel, evaluationType);
+
   const system = `You are a military evaluation writing expert specializing in ${evaluationType}s.
 
 ${isOER ? 'OFFICER EVALUATION REPORT (OER) STANDARDS:' : 'NCO EVALUATION REPORT (NCOER) STANDARDS:'}
-- Use strong action verbs appropriate for ${isOER ? 'officers' : 'NCOs'} (${isOER ? 'directed, coordinated, managed, led, planned' : 'led, trained, maintained, supervised, executed'})
-- Results-focused with quantifiable metrics
-- ${isOER ? 'Strategic and analytical language' : 'Tactical and action-oriented language'}
-- Professional ${isOER ? 'officer' : 'NCO'} tone
+- ${rankGuidance}
+- Results-focused with quantifiable metrics when possible
+- Professional tone appropriate for ${rankLevel} grade
 - Concise (under 350 characters for EES compatibility)
-- Appropriate for ${rankLevel} rank level
-- ${isOER ? 'Emphasize planning, coordination, and decision-making' : 'Emphasize leadership, training, and mission execution'}
+- NO personal pronouns (I, me, my)
+- Begin with strong action verb
+- Include impact/results when available
+
+FORM-SPECIFIC GUIDANCE FOR ${rankLevel}:
+${isOER
+  ? rankLevel === 'O6'
+    ? 'Strategic-grade OER: Emphasize enterprise-wide impact, strategic vision, joint/interagency coordination'
+    : rankLevel === 'O4-O5'
+    ? 'Field-grade OER: Emphasize organizational leadership, staff integration, operational planning'
+    : 'Company-grade OER: Emphasize tactical leadership, resource management, mission command'
+  : rankLevel === 'E9'
+    ? 'SGM/CSM NCOER: Emphasize enterprise influence, institutional impact, talent management'
+    : rankLevel === 'E6-E8'
+    ? 'Organizational NCOER: Emphasize program management, systems oversight, NCO development'
+    : 'Direct-level NCOER: Emphasize hands-on leadership, Soldier training, tactical execution'
+}
 
 CRITICAL: Do NOT add information not in the original bullet. Only enhance what's there.`;
 
@@ -224,43 +292,155 @@ Format: Single cohesive paragraph, no bullet points.`;
 }
 
 /**
- * Generate Senior Rater Comments
+ * Generate Senior Rater Comments (legacy - simple paragraph)
  */
 export async function generateSeniorRaterComments(
   raterComments: string,
   bullets: CategoryResult[],
-  rankLevel: string,
-  evaluationType: 'NCOER' | 'OER' = 'NCOER'
+  rankLevel: RankLevel,
+  evaluationType: EvaluationType = 'NCOER'
 ): Promise<string> {
-  console.log(`⭐ REGENERATE: Generating Senior Rater comments for ${evaluationType} ${rankLevel}`);
+  // Use the structured generator and return just the full narrative
+  const structured = await generateStructuredSeniorRater(
+    raterComments,
+    bullets,
+    rankLevel,
+    evaluationType
+  );
+  return structured.full_narrative;
+}
+
+/**
+ * Generate Structured Senior Rater output with all 4 REQUIRED elements
+ * Per MilEvalAI Flow: Enumeration, Promotion, School, Potential/Next Assignment
+ */
+export async function generateStructuredSeniorRater(
+  raterComments: string,
+  bullets: CategoryResult[],
+  rankLevel: RankLevel,
+  evaluationType: EvaluationType = 'NCOER',
+  numSeniorRated: number = 15
+): Promise<SeniorRaterOutput> {
+  console.log(`⭐ Generating STRUCTURED Senior Rater for ${evaluationType} ${rankLevel}`);
   const isOER = evaluationType === 'OER';
-  
+
+  const schoolOptions = SCHOOL_RECOMMENDATIONS[rankLevel].join(', ');
+  const assignmentOptions = NEXT_ASSIGNMENTS[rankLevel].join(', ');
+
   const system = `You are writing Senior Rater comments for a military ${evaluationType}.
 
+CRITICAL REQUIREMENT: You MUST include ALL FOUR of these elements in your response:
+
+1. ENUMERATION: How this person ranks among peers (e.g., "#1 of ${numSeniorRated}", "Top 5%", "Best of ${Math.floor(numSeniorRated * 0.9)}")
+2. PROMOTION: Specific promotion recommendation (e.g., "Promote immediately", "Promote ahead of peers", "Select for promotion now")
+3. SCHOOL RECOMMENDATION: Appropriate for ${rankLevel}: ${schoolOptions}
+4. POTENTIAL/NEXT ASSIGNMENT: From these options: ${assignmentOptions}
+
 ${isOER ? 'OER SENIOR RATER STANDARDS:' : 'NCOER SENIOR RATER STANDARDS:'}
-- Write a powerful paragraph (150-200 words)
+- Write a powerful, comprehensive paragraph (150-200 words)
 - Build on but DON'T repeat the Rater comments
-- Provide strategic-level, big-picture perspective
-- Highlight potential and readiness for promotion/next level
-- Use strong, confident language appropriate for senior leaders
-- ${isOER ? 'Emphasize strategic thinking and officer potential' : 'Emphasize leadership potential and technical expertise'}
-- Match ${rankLevel} rank level expectations
-- ${isOER ? 'Use phrases like "promote ahead of peers", "unlimited potential", "ready for battalion command"' : 'Use phrases like "promote to MSG/1SG immediately", "ready for greater responsibility", "unlimited potential"'}
+- Strategic-level, big-picture perspective
+- Strong, confident language
+- ${isOER
+  ? rankLevel === 'O6'
+    ? 'Strategic-grade: Emphasize enterprise impact, GO potential, strategic vision'
+    : rankLevel === 'O4-O5'
+    ? 'Field-grade: Emphasize battalion/brigade readiness, command potential'
+    : 'Company-grade: Emphasize company command potential, tactical excellence'
+  : rankLevel === 'E9'
+    ? 'SGM/CSM: Emphasize nominative potential, institutional impact'
+    : rankLevel === 'E6-E8'
+    ? 'SSG-MSG: Emphasize 1SG/SGM potential, organizational leadership'
+    : 'SGT: Emphasize SSG potential, squad/section leadership'
+}
 
-Format: Single powerful paragraph that makes this individual stand out.`;
+Respond with a JSON object containing:
+{
+  "enumeration": "the enumeration statement",
+  "promotion": "the promotion recommendation",
+  "school_recommendation": "the school recommendation",
+  "potential_next_assignment": "the next assignment recommendation",
+  "full_narrative": "the complete senior rater paragraph incorporating all 4 elements",
+  "successive_assignments": ["assignment1", "assignment2", ${isOER ? '"assignment3"' : ''}],
+  "broadening_assignment": "${!isOER ? 'one broadening assignment' : ''}"
+}`;
 
-  const prompt = `Write Senior Rater comments for a ${rankLevel} ${evaluationType} building on these Rater comments:\n\n"${raterComments}"\n\nProvide ONLY the paragraph in proper ${evaluationType} senior rater language, nothing else.`;
+  const bulletSummary = bullets.map(b => b.enhanced).join('; ');
+
+  const prompt = `Write Senior Rater comments for a ${rankLevel} ${evaluationType}.
+
+Rater's assessment: "${raterComments}"
+
+Key accomplishments: ${bulletSummary}
+
+Number of ${isOER ? 'officers' : 'NCOs'} I senior rate in this grade: ${numSeniorRated}
+
+Generate a JSON response with enumeration, promotion, school_recommendation, potential_next_assignment, full_narrative, successive_assignments${!isOER ? ', and broadening_assignment' : ''}.`;
 
   try {
-    const result = await callOllama(prompt, system);
-    console.log(`✅ SENIOR RATER COMMENTS COMPLETE: ${result.split(' ').length} words generated`);
-    return result;
+    const response = await callOllama(prompt, system);
+
+    // Parse JSON response
+    const jsonMatch = response.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
+      const parsed = JSON.parse(jsonMatch[0]);
+
+      // Ensure all required fields are present
+      const result: SeniorRaterOutput = {
+        enumeration: parsed.enumeration || `#1 of ${numSeniorRated} ${isOER ? 'officers' : 'NCOs'} I senior rate`,
+        promotion: parsed.promotion || 'Promote immediately',
+        school_recommendation: parsed.school_recommendation || SCHOOL_RECOMMENDATIONS[rankLevel][0],
+        potential_next_assignment: parsed.potential_next_assignment || NEXT_ASSIGNMENTS[rankLevel][0],
+        full_narrative: parsed.full_narrative || '',
+        successive_assignments: parsed.successive_assignments || NEXT_ASSIGNMENTS[rankLevel].slice(0, isOER ? 3 : 2),
+        broadening_assignment: !isOER ? (parsed.broadening_assignment || 'Instructor/Drill Sergeant') : undefined,
+      };
+
+      // If full_narrative is empty, construct it from components
+      if (!result.full_narrative) {
+        result.full_narrative = constructSeniorRaterNarrative(result, rankLevel, evaluationType);
+      }
+
+      console.log(`✅ STRUCTURED SR COMPLETE: All 4 elements generated`);
+      return result;
+    }
+
+    // Fallback if JSON parsing fails
+    throw new Error('Failed to parse JSON response');
   } catch (error) {
-    console.error('❌ Error generating senior rater comments:', error);
-    return isOER
-      ? 'Exceptionally strong officer with unlimited potential. Promote ahead of peers and select for key developmental assignments.'
-      : 'Exceptionally strong NCO with unlimited potential. Promote to next rank immediately and retain for positions of greater responsibility.';
+    console.error('❌ Error generating structured SR:', error);
+
+    // Return sensible defaults
+    const defaults: SeniorRaterOutput = {
+      enumeration: `#1 of ${numSeniorRated} ${isOER ? 'officers' : 'NCOs'} I senior rate; top performer`,
+      promotion: isOER ? 'Promote ahead of peers' : 'Promote immediately to next grade',
+      school_recommendation: SCHOOL_RECOMMENDATIONS[rankLevel][0],
+      potential_next_assignment: NEXT_ASSIGNMENTS[rankLevel][0],
+      full_narrative: '',
+      successive_assignments: NEXT_ASSIGNMENTS[rankLevel].slice(0, isOER ? 3 : 2),
+      broadening_assignment: !isOER ? 'Instructor' : undefined,
+    };
+
+    defaults.full_narrative = constructSeniorRaterNarrative(defaults, rankLevel, evaluationType);
+    return defaults;
   }
+}
+
+/**
+ * Helper to construct a full narrative from SR components
+ */
+function constructSeniorRaterNarrative(
+  sr: SeniorRaterOutput,
+  rankLevel: RankLevel,
+  evaluationType: EvaluationType
+): string {
+  const isOER = evaluationType === 'OER';
+  const title = isOER ? 'officer' : 'NCO';
+  const nextRank = isOER
+    ? rankLevel === 'O1-O3' ? 'MAJ' : rankLevel === 'O4-O5' ? 'COL' : 'BG'
+    : rankLevel === 'E5' ? 'SSG' : rankLevel === 'E6-E8' ? 'MSG/1SG' : 'CSM';
+
+  return `${sr.enumeration}. Exceptional ${title} with unlimited potential and proven results. ${sr.promotion} to ${nextRank}. Ready for ${sr.potential_next_assignment} now. Send to ${sr.school_recommendation} immediately. This ${title} consistently exceeds expectations and is prepared for positions of greater responsibility. Retain and challenge with the most demanding assignments.`;
 }
 
 /**
@@ -313,7 +493,7 @@ Style: Single ${style === 'concise' ? 'powerful, concise' : 'flowing, narrative'
  */
 export async function processBullets(
   bullets: string[],
-  rankLevel: string,
+  rankLevel: RankLevel,
   evaluationType: 'NCOER' | 'OER' = 'NCOER'
 ): Promise<CategoryResult[]> {
   console.log(`🔄 Processing ${bullets.length} bullets for ${evaluationType} ${rankLevel} (calling LLM ${bullets.length * 2} times)`);

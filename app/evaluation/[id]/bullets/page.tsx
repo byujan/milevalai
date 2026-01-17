@@ -236,7 +236,7 @@ export default function BulletsPage() {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-black text-white">
+      <div className="flex min-h-[80vh] items-center justify-center">
         <div className="text-center">
           <div className="mb-4 inline-flex h-16 w-16 animate-spin items-center justify-center rounded-full border-4 border-blue-500 border-t-transparent"></div>
           <h2 className="mb-2 text-2xl font-bold">Loading Bullets...</h2>
@@ -247,7 +247,7 @@ export default function BulletsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-black px-4 py-8 text-white">
+    <div className="px-4 py-8">
       <div className="mx-auto max-w-4xl">
         <div className="mb-8">
           <h1 className="mb-2 text-3xl font-bold">Generate Performance Bullets</h1>
@@ -263,7 +263,7 @@ export default function BulletsPage() {
             className={`rounded-lg border px-4 py-2 text-sm font-medium transition-all ${
               style === "concise"
                 ? "border-blue-500 bg-blue-500/10 text-blue-400"
-                : "border-white/10 bg-white/5 text-gray-400 hover:border-white/20"
+                : "border-white/10 bg-black shadow-sm text-gray-400 hover:border-white/20"
             }`}
           >
             Concise & Strong
@@ -273,7 +273,7 @@ export default function BulletsPage() {
             className={`rounded-lg border px-4 py-2 text-sm font-medium transition-all ${
               style === "narrative"
                 ? "border-blue-500 bg-blue-500/10 text-blue-400"
-                : "border-white/10 bg-white/5 text-gray-400 hover:border-white/20"
+                : "border-white/10 bg-black shadow-sm text-gray-400 hover:border-white/20"
             }`}
           >
             Narrative & Impactful
@@ -300,7 +300,7 @@ export default function BulletsPage() {
             <input
               type="checkbox"
               defaultChecked
-              className="h-5 w-5 rounded border-white/10 bg-white/5 text-blue-600 focus:ring-2 focus:ring-blue-500/20"
+              className="h-5 w-5 rounded border-white/10 bg-black shadow-sm text-blue-400 focus:ring-2 focus:ring-blue-500/20"
             />
             <span className="text-sm text-gray-300">
               Maintain consistent tone with Senior Rater
@@ -313,14 +313,14 @@ export default function BulletsPage() {
           {bullets.map((bullet) => (
             <div
               key={bullet.id}
-              className="rounded-xl border border-white/10 bg-white/5 p-6"
+              className="rounded-xl border border-white/10 bg-black shadow-sm p-6"
             >
               {editingId === bullet.id ? (
                 <div>
                   <textarea
                     value={editContent}
                     onChange={(e) => setEditContent(e.target.value)}
-                    className="mb-4 w-full rounded-lg border border-white/10 bg-white/5 p-4 text-white focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                    className="mb-4 w-full rounded-lg border border-white/10 bg-black shadow-sm p-4 text-white focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                     rows={3}
                     placeholder="Enter bullet content..."
                   />
@@ -346,7 +346,7 @@ export default function BulletsPage() {
                     <button
                       onClick={() => handleEdit(bullet)}
                       disabled={regenerating === bullet.id}
-                      className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-50"
+                      className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-black shadow-sm px-3 py-2 text-sm hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       <Pencil className="h-4 w-4" />
                       Edit
@@ -354,15 +354,15 @@ export default function BulletsPage() {
                     <button
                       onClick={() => handleRegenerate(bullet.id)}
                       disabled={regenerating === bullet.id}
-                      className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-50"
+                      className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-black shadow-sm px-3 py-2 text-sm hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       <RotateCw className={`h-4 w-4 ${regenerating === bullet.id ? 'animate-spin' : ''}`} />
                       {regenerating === bullet.id ? 'Regenerating...' : 'Regenerate'}
                     </button>
-                    <button className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm hover:bg-white/10">
+                    <button className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-black shadow-sm px-3 py-2 text-sm hover:bg-white/10">
                       <ThumbsUp className="h-4 w-4" />
                     </button>
-                    <button className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm hover:bg-white/10">
+                    <button className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-black shadow-sm px-3 py-2 text-sm hover:bg-white/10">
                       <ThumbsDown className="h-4 w-4" />
                     </button>
                   </div>
@@ -375,7 +375,7 @@ export default function BulletsPage() {
         {/* Add Bullet Button */}
         <button
           onClick={handleAddBullet}
-          className="mt-4 w-full rounded-xl border border-dashed border-white/20 bg-white/5 px-6 py-4 text-sm font-medium text-gray-400 transition-colors hover:border-white/30 hover:text-white"
+          className="mt-4 w-full rounded-xl border border-dashed border-white/20 bg-black shadow-sm px-6 py-4 text-sm font-medium text-gray-400 transition-colors hover:border-white/30 hover:text-white"
         >
           <Plus className="mx-auto h-5 w-5" />
         </button>
