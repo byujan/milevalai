@@ -32,20 +32,31 @@ export default function SignUp() {
       return;
     }
 
-    const supabase = createClient();
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo: `${window.location.origin}/auth/callback`,
-      },
-    });
+    try {
+      const supabase = createClient();
+      console.log('Supabase client created');
 
-    if (error) {
-      setError(error.message);
-      setLoading(false);
-    } else {
-      setSuccess(true);
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/auth/callback`,
+        },
+      });
+
+      console.log('SignUp response:', { data, error });
+
+      if (error) {
+        console.error('SignUp error:', error);
+        setError(error.message);
+        setLoading(false);
+      } else {
+        setSuccess(true);
+        setLoading(false);
+      }
+    } catch (err) {
+      console.error('Caught error during signup:', err);
+      setError(err instanceof Error ? err.message : 'An unexpected error occurred');
       setLoading(false);
     }
   };
