@@ -68,7 +68,7 @@ export default function ReviewPage() {
   const [validation, setValidation] = useState<ValidationResult | null>(null);
   const [narrativeWarnings, setNarrativeWarnings] = useState<ValidationError[]>([]);
 
-  // Section expansion state
+  // Section expansion state - will be auto-expanded if errors exist
   const [expanded, setExpanded] = useState<SectionState>({
     partI: false,
     partII: false,
@@ -76,6 +76,26 @@ export default function ReviewPage() {
     partIV: true,
     partV: true,
   });
+
+  // Auto-expand sections with errors
+  useEffect(() => {
+    if (!validation) return;
+
+    const hasErrorInSection = (sectionFields: string[]) => {
+      return validation.errors.some(error =>
+        sectionFields.some(field => error.field.startsWith(field))
+      );
+    };
+
+    // Check which sections have errors and expand them
+    setExpanded(prev => ({
+      partI: hasErrorInSection(['rated_personnel', 'period_covered', 'reason_for_submission']) || prev.partI,
+      partII: hasErrorInSection(['rating_chain']) || prev.partII,
+      partIII: hasErrorInSection(['duty_description']) || prev.partIII,
+      partIV: hasErrorInSection(['fitness', 'rater_assessment']) || prev.partIV,
+      partV: hasErrorInSection(['senior_rater_assessment']) || prev.partV,
+    }));
+  }, [validation]);
 
   // Load evaluation data
   useEffect(() => {

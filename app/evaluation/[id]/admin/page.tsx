@@ -15,6 +15,7 @@ import {
   Activity,
   AlertCircle,
   Check,
+  RotateCw,
 } from "lucide-react";
 import {
   EvaluationFormData,
@@ -39,6 +40,7 @@ import {
   validateUIC,
   validateMilitaryEmail,
 } from "@/lib/validation/evaluation-validator";
+import { generateQuarterlyCounselingDates } from "@/lib/utils/date-utils";
 
 // Section collapse state type
 interface SectionState {
@@ -187,14 +189,58 @@ export default function AdminDataPage() {
           },
         }));
       } else {
-        // Pre-fill duty title from evaluation
-        setFormData((prev) => ({
-          ...prev,
-          duty_description: {
-            ...prev.duty_description!,
-            principal_duty_title: data.duty_title,
-          },
-        }));
+        // Pre-fill from predecessor if available
+        const predecessorData = data.predecessor_analysis?.admin_data;
+
+        if (predecessorData) {
+          console.log('Pre-filling from predecessor analysis:', predecessorData);
+
+          setFormData((prev) => ({
+            ...prev,
+            rated_personnel: {
+              ...prev.rated_personnel!,
+              name: predecessorData.name || prev.rated_personnel?.name || "",
+              rank: predecessorData.rank || prev.rated_personnel?.rank || "",
+              dodid: predecessorData.dodid || prev.rated_personnel?.dodid || "",
+              pmos_aoc: predecessorData.pmos_aoc || prev.rated_personnel?.pmos_aoc || "",
+              uic: predecessorData.uic || prev.rated_personnel?.uic || "",
+              unit_org_station: predecessorData.unit_org_station || prev.rated_personnel?.unit_org_station || "",
+            },
+            period_covered: {
+              ...prev.period_covered!,
+              from_date: predecessorData.period_from || prev.period_covered?.from_date || "",
+              thru_date: predecessorData.period_thru || prev.period_covered?.thru_date || "",
+            },
+            rating_chain: {
+              ...prev.rating_chain!,
+              rater: {
+                ...prev.rating_chain?.rater!,
+                name: predecessorData.rater_name || prev.rating_chain?.rater?.name || "",
+                rank: predecessorData.rater_rank || prev.rating_chain?.rater?.rank || "",
+                position: predecessorData.rater_position || prev.rating_chain?.rater?.position || "",
+              },
+              senior_rater: {
+                ...prev.rating_chain?.senior_rater!,
+                name: predecessorData.senior_rater_name || prev.rating_chain?.senior_rater?.name || "",
+                rank: predecessorData.senior_rater_rank || prev.rating_chain?.senior_rater?.rank || "",
+                position: predecessorData.senior_rater_position || prev.rating_chain?.senior_rater?.position || "",
+              },
+            },
+            duty_description: {
+              ...prev.duty_description!,
+              principal_duty_title: predecessorData.duty_title || data.duty_title,
+            },
+          }));
+        } else {
+          // No predecessor data, just pre-fill duty title from evaluation
+          setFormData((prev) => ({
+            ...prev,
+            duty_description: {
+              ...prev.duty_description!,
+              principal_duty_title: data.duty_title,
+            },
+          }));
+        }
       }
 
       setLoading(false);
@@ -219,6 +265,25 @@ export default function AdminDataPage() {
       }));
     }
   }, [formData.period_covered?.from_date, formData.period_covered?.thru_date]);
+
+  // Auto-generate counseling dates when from_date changes
+  useEffect(() => {
+    if (formData.period_covered?.from_date && !formData.duty_description?.counseling_dates?.initial) {
+      const ratedMonths = formData.period_covered?.rated_months || 12;
+      const counselingDates = generateQuarterlyCounselingDates(
+        formData.period_covered.from_date,
+        ratedMonths
+      );
+
+      setFormData((prev) => ({
+        ...prev,
+        duty_description: {
+          ...prev.duty_description!,
+          counseling_dates: counselingDates,
+        },
+      }));
+    }
+  }, [formData.period_covered?.from_date, formData.period_covered?.rated_months]);
 
   // Debounced auto-save
   const saveFormData = useCallback(async () => {
@@ -313,7 +378,7 @@ export default function AdminDataPage() {
   // Handle continue to next step
   const handleContinue = async () => {
     await saveFormData();
-    router.push(`/evaluation/${evaluationId}/draft`);
+    router.push(`/evaluation/${evaluationId}/bullets`);
   };
 
   // Get reason codes for current eval type
@@ -691,19 +756,6 @@ export default function AdminDataPage() {
                       />
                     </div>
                   </div>
-                  <div>
-                    <label className="mb-2 block text-sm font-medium">
-                      Number of {evalType === "OER" ? "Officers" : "NCOs"} currently rated in this grade
-                    </label>
-                    <input
-                      type="number"
-                      value={formData.rating_chain?.rater?.num_rated_in_grade || ""}
-                      onChange={(e) => updateFormData("rating_chain.rater.num_rated_in_grade", parseInt(e.target.value) || 0)}
-                      placeholder="0"
-                      min={0}
-                      className="w-32 rounded-lg border border-white/10 bg-black shadow-sm0 px-4 py-3 text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none"
-                    />
-                  </div>
                 </div>
               </div>
 
@@ -761,19 +813,6 @@ export default function AdminDataPage() {
                         className="w-full rounded-lg border border-white/10 bg-black shadow-sm0 px-4 py-3 text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none"
                       />
                     </div>
-                  </div>
-                  <div>
-                    <label className="mb-2 block text-sm font-medium">
-                      Number of {evalType === "OER" ? "Officers" : "NCOs"} currently senior rated in this grade
-                    </label>
-                    <input
-                      type="number"
-                      value={formData.rating_chain?.senior_rater?.num_senior_rated_in_grade || ""}
-                      onChange={(e) => updateFormData("rating_chain.senior_rater.num_senior_rated_in_grade", parseInt(e.target.value) || 0)}
-                      placeholder="0"
-                      min={0}
-                      className="w-32 rounded-lg border border-white/10 bg-black shadow-sm0 px-4 py-3 text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none"
-                    />
                   </div>
                 </div>
               </div>
@@ -867,7 +906,26 @@ export default function AdminDataPage() {
 
               {/* Counseling Dates */}
               <div className="border-t border-white/10 pt-6">
-                <h3 className="mb-4 text-lg font-semibold">Counseling Dates</h3>
+                <div className="mb-4 flex items-center justify-between">
+                  <h3 className="text-lg font-semibold">Counseling Dates</h3>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (formData.period_covered?.from_date) {
+                        const ratedMonths = formData.period_covered?.rated_months || 12;
+                        const counselingDates = generateQuarterlyCounselingDates(
+                          formData.period_covered.from_date,
+                          ratedMonths
+                        );
+                        updateFormData("duty_description.counseling_dates", counselingDates);
+                      }
+                    }}
+                    className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-black shadow-sm px-3 py-1.5 text-xs text-gray-400 transition-colors hover:text-white hover:border-blue-500"
+                  >
+                    <RotateCw className="h-3 w-3" />
+                    Regenerate Dates
+                  </button>
+                </div>
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div>
                     <label className="mb-2 block text-sm font-medium">

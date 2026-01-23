@@ -211,6 +211,73 @@ CRITICAL: Do NOT add information not in the original bullet. Only enhance what's
 }
 
 /**
+ * Extract structured administrative data from predecessor evaluation
+ */
+export async function extractAdminDataFromPredecessor(text: string): Promise<{
+  name?: string;
+  rank?: string;
+  dodid?: string;
+  pmos_aoc?: string;
+  uic?: string;
+  unit_org_station?: string;
+  rater_name?: string;
+  rater_rank?: string;
+  rater_position?: string;
+  senior_rater_name?: string;
+  senior_rater_rank?: string;
+  senior_rater_position?: string;
+  period_from?: string;
+  period_thru?: string;
+  duty_title?: string;
+}> {
+  const system = `You are extracting administrative data from a military evaluation document. Extract the following fields and return them as JSON:
+{
+  "name": "Rated person's name (Last, First MI)",
+  "rank": "Rated person's rank (e.g., SFC, CPT)",
+  "dodid": "10-digit DOD ID number",
+  "pmos_aoc": "PMOS for NCO or AOC for Officer",
+  "uic": "6-character Unit Identification Code",
+  "unit_org_station": "Unit, Organization, Station, ZIP/APO, Major Command",
+  "rater_name": "Rater's name (Last, First MI)",
+  "rater_rank": "Rater's rank",
+  "rater_position": "Rater's position/duty title",
+  "senior_rater_name": "Senior Rater's name (Last, First MI)",
+  "senior_rater_rank": "Senior Rater's rank",
+  "senior_rater_position": "Senior Rater's position/duty title",
+  "period_from": "Period covered from date (YYYYMMDD format)",
+  "period_thru": "Period covered thru date (YYYYMMDD format)",
+  "duty_title": "Principal duty title"
+}
+
+Return ONLY fields you can find. If a field is not found, omit it from the JSON. Use null for missing fields.`;
+
+  const prompt = `Extract administrative data from this military evaluation:\n\n${text.substring(0, 3000)}\n\nProvide only the JSON object with extracted data.`;
+
+  try {
+    const response = await callOllama(prompt, system);
+    const jsonMatch = response.match(/\{[\s\S]*\}/);
+
+    if (jsonMatch) {
+      const parsed = JSON.parse(jsonMatch[0]);
+      // Clean up the data - remove null/empty values
+      const cleaned: any = {};
+      Object.keys(parsed).forEach(key => {
+        if (parsed[key] && parsed[key] !== 'null' && parsed[key].trim() !== '') {
+          cleaned[key] = parsed[key].trim();
+        }
+      });
+      console.log('✅ Extracted admin data from predecessor:', Object.keys(cleaned));
+      return cleaned;
+    }
+  } catch (error) {
+    console.error('Error extracting admin data from predecessor:', error);
+  }
+
+  // Return empty object if extraction fails
+  return {};
+}
+
+/**
  * Analyze predecessor evaluation to learn tone and style
  */
 export async function analyzePredecessor(text: string): Promise<{
@@ -230,7 +297,7 @@ export async function analyzePredecessor(text: string): Promise<{
   try {
     const response = await callOllama(prompt, system);
     const jsonMatch = response.match(/\{[\s\S]*\}/);
-    
+
     if (jsonMatch) {
       return JSON.parse(jsonMatch[0]);
     }

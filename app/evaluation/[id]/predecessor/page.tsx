@@ -91,8 +91,27 @@ export default function PredecessorUpload() {
       // Extract text from file (simplified - in production, use proper PDF/DOCX parsing)
       const text = await file.text().catch(() => "");
 
-      // TODO: Call AI to analyze predecessor
-      // For now, just save the URL
+      // Call AI to extract structured admin data
+      let adminData: any = {};
+      if (text.length > 50) {
+        try {
+          const response = await fetch('/api/ai/extract-predecessor', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ text, evaluationId }),
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            adminData = data.adminData || {};
+            console.log('Extracted admin data:', adminData);
+          }
+        } catch (err) {
+          console.error('Error extracting predecessor data:', err);
+        }
+      }
+
+      // Save URL and extracted data
       const { error: updateError } = await supabase
         .from("evaluations")
         .update({
@@ -102,6 +121,7 @@ export default function PredecessorUpload() {
             filename: file.name,
             tone: "professional",
             style: "results-oriented",
+            admin_data: adminData,
           },
         })
         .eq("id", evaluationId);
