@@ -6,8 +6,7 @@ import { Check } from "lucide-react";
 export type EvaluationStep =
   | "predecessor"
   | "admin"
-  | "draft"
-  | "categorize"
+  | "bullets"
   | "rater"
   | "senior-rater"
   | "review"
@@ -22,8 +21,7 @@ interface Step {
 const steps: Step[] = [
   { id: "predecessor", name: "Upload Predecessor", href: (id) => `/evaluation/${id}/predecessor` },
   { id: "admin", name: "Admin Data", href: (id) => `/evaluation/${id}/admin` },
-  { id: "draft", name: "Draft Bullets", href: (id) => `/evaluation/${id}/draft` },
-  { id: "categorize", name: "Categorize", href: (id) => `/evaluation/${id}/categorize` },
+  { id: "bullets", name: "Bullets", href: (id) => `/evaluation/${id}/bullets` },
   { id: "rater", name: "Rater", href: (id) => `/evaluation/${id}/rater` },
   { id: "senior-rater", name: "Senior Rater", href: (id) => `/evaluation/${id}/senior-rater` },
   { id: "review", name: "Review", href: (id) => `/evaluation/${id}/review` },

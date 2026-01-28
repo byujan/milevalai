@@ -233,17 +233,40 @@ export async function generateEvaluationDOCX(options: DOCXGeneratorOptions): Pro
 
     if (rc.rater) {
       children.push(
-        createFieldRow('Rater', `${rc.rater.name || 'N/A'}, ${rc.rater.rank || ''}, ${rc.rater.position || ''}`)
+        createFieldRow('Rater Name', `${rc.rater.name || 'N/A'}, ${rc.rater.rank || ''}`)
       );
+      if (rc.rater.dodid) {
+        children.push(createFieldRow('  DODID', rc.rater.dodid));
+      }
+      if (rc.rater.pmos_branch) {
+        children.push(createFieldRow('  PMOSC/Branch', rc.rater.pmos_branch));
+      }
+      children.push(createFieldRow('  Duty Assignment', rc.rater.duty_assignment || 'N/A'));
+      if (rc.rater.organization) {
+        children.push(createFieldRow('  Organization', rc.rater.organization));
+      }
+      if (rc.rater.email) {
+        children.push(createFieldRow('  Email', rc.rater.email));
+      }
     }
 
     if (rc.senior_rater) {
       children.push(
-        createFieldRow(
-          'Senior Rater',
-          `${rc.senior_rater.name || 'N/A'}, ${rc.senior_rater.rank || ''}, ${rc.senior_rater.position || ''}`
-        )
+        createFieldRow('Senior Rater Name', `${rc.senior_rater.name || 'N/A'}, ${rc.senior_rater.rank || ''}`)
       );
+      if (rc.senior_rater.dodid) {
+        children.push(createFieldRow('  DODID', rc.senior_rater.dodid));
+      }
+      if (rc.senior_rater.pmos_branch) {
+        children.push(createFieldRow('  PMOSC/Branch', rc.senior_rater.pmos_branch));
+      }
+      children.push(createFieldRow('  Duty Assignment', rc.senior_rater.duty_assignment || 'N/A'));
+      if (rc.senior_rater.organization) {
+        children.push(createFieldRow('  Organization', rc.senior_rater.organization));
+      }
+      if (rc.senior_rater.email) {
+        children.push(createFieldRow('  Email', rc.senior_rater.email));
+      }
     }
 
     if (rc.intermediate_rater) {

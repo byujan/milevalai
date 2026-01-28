@@ -17,8 +17,7 @@ export default function EvaluationLayout({
   const getCurrentStep = (): EvaluationStep | null => {
     if (pathname.includes("/predecessor")) return "predecessor";
     if (pathname.includes("/admin")) return "admin";
-    if (pathname.includes("/draft")) return "draft";
-    if (pathname.includes("/categorize")) return "categorize";
+    if (pathname.includes("/bullets")) return "bullets";
     if (pathname.includes("/rater")) return "rater";
     if (pathname.includes("/senior-rater")) return "senior-rater";
     if (pathname.includes("/review")) return "review";

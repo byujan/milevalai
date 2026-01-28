@@ -208,13 +208,50 @@ export async function generateEvaluationPDF(options: PDFGeneratorOptions): Promi
     const rc = formData.rating_chain;
 
     if (rc.rater) {
-      drawText(`Rater: ${rc.rater.name || 'N/A'}, ${rc.rater.rank || ''}, ${rc.rater.position || ''}`, MARGIN, helvetica, 10);
+      drawText(`Rater: ${rc.rater.name || 'N/A'}, ${rc.rater.rank || ''}`, MARGIN, helvetica, 10);
       yPosition -= LINE_HEIGHT;
+      if (rc.rater.dodid) {
+        drawText(`  DODID: ${rc.rater.dodid}`, MARGIN, helvetica, 9);
+        yPosition -= LINE_HEIGHT;
+      }
+      if (rc.rater.pmos_branch) {
+        drawText(`  PMOSC/Branch: ${rc.rater.pmos_branch}`, MARGIN, helvetica, 9);
+        yPosition -= LINE_HEIGHT;
+      }
+      drawText(`  Duty Assignment: ${rc.rater.duty_assignment || 'N/A'}`, MARGIN, helvetica, 9);
+      yPosition -= LINE_HEIGHT;
+      if (rc.rater.organization) {
+        drawText(`  Organization: ${rc.rater.organization}`, MARGIN, helvetica, 9);
+        yPosition -= LINE_HEIGHT;
+      }
+      if (rc.rater.email) {
+        drawText(`  Email: ${rc.rater.email}`, MARGIN, helvetica, 9);
+        yPosition -= LINE_HEIGHT;
+      }
     }
 
     if (rc.senior_rater) {
-      drawText(`Senior Rater: ${rc.senior_rater.name || 'N/A'}, ${rc.senior_rater.rank || ''}, ${rc.senior_rater.position || ''}`, MARGIN, helvetica, 10);
+      yPosition -= 5;
+      drawText(`Senior Rater: ${rc.senior_rater.name || 'N/A'}, ${rc.senior_rater.rank || ''}`, MARGIN, helvetica, 10);
       yPosition -= LINE_HEIGHT;
+      if (rc.senior_rater.dodid) {
+        drawText(`  DODID: ${rc.senior_rater.dodid}`, MARGIN, helvetica, 9);
+        yPosition -= LINE_HEIGHT;
+      }
+      if (rc.senior_rater.pmos_branch) {
+        drawText(`  PMOSC/Branch: ${rc.senior_rater.pmos_branch}`, MARGIN, helvetica, 9);
+        yPosition -= LINE_HEIGHT;
+      }
+      drawText(`  Duty Assignment: ${rc.senior_rater.duty_assignment || 'N/A'}`, MARGIN, helvetica, 9);
+      yPosition -= LINE_HEIGHT;
+      if (rc.senior_rater.organization) {
+        drawText(`  Organization: ${rc.senior_rater.organization}`, MARGIN, helvetica, 9);
+        yPosition -= LINE_HEIGHT;
+      }
+      if (rc.senior_rater.email) {
+        drawText(`  Email: ${rc.senior_rater.email}`, MARGIN, helvetica, 9);
+        yPosition -= LINE_HEIGHT;
+      }
     }
 
     if (rc.supplementary_reviewer) {

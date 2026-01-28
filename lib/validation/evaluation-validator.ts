@@ -349,10 +349,10 @@ export function validateRatingChain(
     });
   }
 
-  if (!chain.rater?.position?.trim()) {
+  if (!chain.rater?.duty_assignment?.trim()) {
     errors.push({
-      field: 'rating_chain.rater.position',
-      message: 'Rater position is required',
+      field: 'rating_chain.rater.duty_assignment',
+      message: 'Rater duty assignment is required',
       severity: 'error',
     });
   }

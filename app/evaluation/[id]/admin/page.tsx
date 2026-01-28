@@ -121,15 +121,21 @@ export default function AdminDataPage() {
       rater: {
         name: "",
         rank: "",
-        position: "",
+        duty_assignment: "",
         email: "",
+        dodid: "",
+        pmos_branch: "",
+        organization: "",
         num_rated_in_grade: 0,
       },
       senior_rater: {
         name: "",
         rank: "",
-        position: "",
+        duty_assignment: "",
         email: "",
+        dodid: "",
+        pmos_branch: "",
+        organization: "",
         num_senior_rated_in_grade: 0,
       },
     },
@@ -217,13 +223,13 @@ export default function AdminDataPage() {
                 ...prev.rating_chain?.rater!,
                 name: predecessorData.rater_name || prev.rating_chain?.rater?.name || "",
                 rank: predecessorData.rater_rank || prev.rating_chain?.rater?.rank || "",
-                position: predecessorData.rater_position || prev.rating_chain?.rater?.position || "",
+                duty_assignment: predecessorData.rater_position || prev.rating_chain?.rater?.duty_assignment || "",
               },
               senior_rater: {
                 ...prev.rating_chain?.senior_rater!,
                 name: predecessorData.senior_rater_name || prev.rating_chain?.senior_rater?.name || "",
                 rank: predecessorData.senior_rater_rank || prev.rating_chain?.senior_rater?.rank || "",
-                position: predecessorData.senior_rater_position || prev.rating_chain?.senior_rater?.position || "",
+                duty_assignment: predecessorData.senior_rater_position || prev.rating_chain?.senior_rater?.duty_assignment || "",
               },
             },
             duty_description: {
@@ -734,27 +740,64 @@ export default function AdminDataPage() {
                   <div className="grid gap-4 sm:grid-cols-2">
                     <div>
                       <label className="mb-2 block text-sm font-medium">
-                        Position <span className="text-red-400">*</span>
+                        DODID
                       </label>
                       <input
                         type="text"
-                        value={formData.rating_chain?.rater?.position || ""}
-                        onChange={(e) => updateFormData("rating_chain.rater.position", e.target.value)}
+                        value={formData.rating_chain?.rater?.dodid || ""}
+                        onChange={(e) => updateFormData("rating_chain.rater.dodid", e.target.value.replace(/\D/g, "").slice(0, 10))}
+                        placeholder="1234567890"
+                        maxLength={10}
+                        className="w-full rounded-lg border border-white/10 bg-black shadow-sm0 px-4 py-3 text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none"
+                      />
+                    </div>
+                    <div>
+                      <label className="mb-2 block text-sm font-medium">
+                        {evalType === "OER" ? "Branch" : "PMOSC"}
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.rating_chain?.rater?.pmos_branch || ""}
+                        onChange={(e) => updateFormData("rating_chain.rater.pmos_branch", e.target.value)}
+                        placeholder={evalType === "OER" ? "11A" : "11B"}
+                        className="w-full rounded-lg border border-white/10 bg-black shadow-sm0 px-4 py-3 text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none"
+                      />
+                    </div>
+                  </div>
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div>
+                      <label className="mb-2 block text-sm font-medium">
+                        Duty Assignment <span className="text-red-400">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.rating_chain?.rater?.duty_assignment || ""}
+                        onChange={(e) => updateFormData("rating_chain.rater.duty_assignment", e.target.value)}
                         placeholder="Company Commander"
                         className="w-full rounded-lg border border-white/10 bg-black shadow-sm0 px-4 py-3 text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none"
                       />
                     </div>
                     <div>
-                      <label className="mb-2 block text-sm font-medium">Email (.gov or .mil)</label>
+                      <label className="mb-2 block text-sm font-medium">Organization</label>
                       <input
-                        type="email"
-                        value={formData.rating_chain?.rater?.email || ""}
-                        onChange={(e) => updateFormData("rating_chain.rater.email", e.target.value)}
-                        onBlur={(e) => validateField("rating_chain.rater.email", e.target.value)}
-                        placeholder="jane.doe@army.mil"
+                        type="text"
+                        value={formData.rating_chain?.rater?.organization || ""}
+                        onChange={(e) => updateFormData("rating_chain.rater.organization", e.target.value)}
+                        placeholder="A CO, 1-502 IN"
                         className="w-full rounded-lg border border-white/10 bg-black shadow-sm0 px-4 py-3 text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none"
                       />
                     </div>
+                  </div>
+                  <div>
+                    <label className="mb-2 block text-sm font-medium">Email (.gov or .mil)</label>
+                    <input
+                      type="email"
+                      value={formData.rating_chain?.rater?.email || ""}
+                      onChange={(e) => updateFormData("rating_chain.rater.email", e.target.value)}
+                      onBlur={(e) => validateField("rating_chain.rater.email", e.target.value)}
+                      placeholder="jane.doe@army.mil"
+                      className="w-full rounded-lg border border-white/10 bg-black shadow-sm0 px-4 py-3 text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none"
+                    />
                   </div>
                 </div>
               </div>
@@ -792,27 +835,64 @@ export default function AdminDataPage() {
                   <div className="grid gap-4 sm:grid-cols-2">
                     <div>
                       <label className="mb-2 block text-sm font-medium">
-                        Position <span className="text-red-400">*</span>
+                        DODID
                       </label>
                       <input
                         type="text"
-                        value={formData.rating_chain?.senior_rater?.position || ""}
-                        onChange={(e) => updateFormData("rating_chain.senior_rater.position", e.target.value)}
+                        value={formData.rating_chain?.senior_rater?.dodid || ""}
+                        onChange={(e) => updateFormData("rating_chain.senior_rater.dodid", e.target.value.replace(/\D/g, "").slice(0, 10))}
+                        placeholder="1234567890"
+                        maxLength={10}
+                        className="w-full rounded-lg border border-white/10 bg-black shadow-sm0 px-4 py-3 text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none"
+                      />
+                    </div>
+                    <div>
+                      <label className="mb-2 block text-sm font-medium">
+                        {evalType === "OER" ? "Branch" : "PMOSC"}
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.rating_chain?.senior_rater?.pmos_branch || ""}
+                        onChange={(e) => updateFormData("rating_chain.senior_rater.pmos_branch", e.target.value)}
+                        placeholder={evalType === "OER" ? "11A" : "11B"}
+                        className="w-full rounded-lg border border-white/10 bg-black shadow-sm0 px-4 py-3 text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none"
+                      />
+                    </div>
+                  </div>
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div>
+                      <label className="mb-2 block text-sm font-medium">
+                        Duty Assignment <span className="text-red-400">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.rating_chain?.senior_rater?.duty_assignment || ""}
+                        onChange={(e) => updateFormData("rating_chain.senior_rater.duty_assignment", e.target.value)}
                         placeholder="Battalion Commander"
                         className="w-full rounded-lg border border-white/10 bg-black shadow-sm0 px-4 py-3 text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none"
                       />
                     </div>
                     <div>
-                      <label className="mb-2 block text-sm font-medium">Email (.gov or .mil)</label>
+                      <label className="mb-2 block text-sm font-medium">Organization</label>
                       <input
-                        type="email"
-                        value={formData.rating_chain?.senior_rater?.email || ""}
-                        onChange={(e) => updateFormData("rating_chain.senior_rater.email", e.target.value)}
-                        onBlur={(e) => validateField("rating_chain.senior_rater.email", e.target.value)}
-                        placeholder="robert.jones@army.mil"
+                        type="text"
+                        value={formData.rating_chain?.senior_rater?.organization || ""}
+                        onChange={(e) => updateFormData("rating_chain.senior_rater.organization", e.target.value)}
+                        placeholder="1-502 IN"
                         className="w-full rounded-lg border border-white/10 bg-black shadow-sm0 px-4 py-3 text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none"
                       />
                     </div>
+                  </div>
+                  <div>
+                    <label className="mb-2 block text-sm font-medium">Email (.gov or .mil)</label>
+                    <input
+                      type="email"
+                      value={formData.rating_chain?.senior_rater?.email || ""}
+                      onChange={(e) => updateFormData("rating_chain.senior_rater.email", e.target.value)}
+                      onBlur={(e) => validateField("rating_chain.senior_rater.email", e.target.value)}
+                      placeholder="robert.jones@army.mil"
+                      className="w-full rounded-lg border border-white/10 bg-black shadow-sm0 px-4 py-3 text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none"
+                    />
                   </div>
                 </div>
               </div>
@@ -882,27 +962,36 @@ export default function AdminDataPage() {
                 />
               </div>
 
-              <div>
-                <label className="mb-2 block text-sm font-medium">Areas of Special Emphasis</label>
-                <textarea
-                  value={formData.duty_description?.areas_of_emphasis || ""}
-                  onChange={(e) => updateFormData("duty_description.areas_of_emphasis", e.target.value)}
-                  placeholder="Training, readiness, maintenance, safety..."
-                  rows={2}
-                  className="w-full rounded-lg border border-white/10 bg-black shadow-sm0 px-4 py-3 text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none resize-none"
-                />
-              </div>
+              {/* Areas of Special Emphasis - NCOER only */}
+              {evalType === "NCOER" && (
+                <div>
+                  <label className="mb-2 block text-sm font-medium">Areas of Special Emphasis</label>
+                  <p className="mb-2 text-xs text-gray-400">
+                    List abbreviations that will be used throughout the evaluation (e.g., Command Maintenance Discipline Program (CMDP))
+                  </p>
+                  <textarea
+                    value={formData.duty_description?.areas_of_emphasis || ""}
+                    onChange={(e) => updateFormData("duty_description.areas_of_emphasis", e.target.value)}
+                    placeholder="Command Maintenance Discipline Program (CMDP), Army Combat Fitness Test (ACFT)..."
+                    rows={2}
+                    className="w-full rounded-lg border border-white/10 bg-black shadow-sm0 px-4 py-3 text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none resize-none"
+                  />
+                </div>
+              )}
 
-              <div>
-                <label className="mb-2 block text-sm font-medium">Appointed Duties</label>
-                <input
-                  type="text"
-                  value={formData.duty_description?.appointed_duties || ""}
-                  onChange={(e) => updateFormData("duty_description.appointed_duties", e.target.value)}
-                  placeholder="UPL, SHARP Rep, Master Fitness Trainer..."
-                  className="w-full rounded-lg border border-white/10 bg-black shadow-sm0 px-4 py-3 text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none"
-                />
-              </div>
+              {/* Appointed Duties - NCOER only */}
+              {evalType === "NCOER" && (
+                <div>
+                  <label className="mb-2 block text-sm font-medium">Appointed Duties</label>
+                  <input
+                    type="text"
+                    value={formData.duty_description?.appointed_duties || ""}
+                    onChange={(e) => updateFormData("duty_description.appointed_duties", e.target.value)}
+                    placeholder="UPL, SHARP Rep, Master Fitness Trainer..."
+                    className="w-full rounded-lg border border-white/10 bg-black shadow-sm0 px-4 py-3 text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none"
+                  />
+                </div>
+              )}
 
               {/* Counseling Dates */}
               <div className="border-t border-white/10 pt-6">

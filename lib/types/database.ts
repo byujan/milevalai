@@ -32,7 +32,7 @@ export interface RatingOfficial {
   dodid?: string;         // 10-digit DOD ID
   rank: string;
   pmos_branch?: string;   // PMOS for NCO, Branch/AOC for Officer
-  position: string;
+  duty_assignment: string;
   organization?: string;
   email: string;          // .gov or .mil
   phone?: string;

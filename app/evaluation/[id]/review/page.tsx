@@ -440,8 +440,20 @@ export default function ReviewPage() {
                       <p className="font-medium">{formData?.rating_chain?.rater?.rank || "Not entered"}</p>
                     </div>
                     <div>
-                      <span className="text-gray-400">Position:</span>
-                      <p className="font-medium">{formData?.rating_chain?.rater?.position || "Not entered"}</p>
+                      <span className="text-gray-400">DODID:</span>
+                      <p className="font-medium">{formData?.rating_chain?.rater?.dodid || "Not entered"}</p>
+                    </div>
+                    <div>
+                      <span className="text-gray-400">PMOSC/Branch:</span>
+                      <p className="font-medium">{formData?.rating_chain?.rater?.pmos_branch || "Not entered"}</p>
+                    </div>
+                    <div>
+                      <span className="text-gray-400">Duty Assignment:</span>
+                      <p className="font-medium">{formData?.rating_chain?.rater?.duty_assignment || "Not entered"}</p>
+                    </div>
+                    <div>
+                      <span className="text-gray-400">Organization:</span>
+                      <p className="font-medium">{formData?.rating_chain?.rater?.organization || "Not entered"}</p>
                     </div>
                     <div>
                       <span className="text-gray-400">Email:</span>
@@ -461,8 +473,20 @@ export default function ReviewPage() {
                       <p className="font-medium">{formData?.rating_chain?.senior_rater?.rank || "Not entered"}</p>
                     </div>
                     <div>
-                      <span className="text-gray-400">Position:</span>
-                      <p className="font-medium">{formData?.rating_chain?.senior_rater?.position || "Not entered"}</p>
+                      <span className="text-gray-400">DODID:</span>
+                      <p className="font-medium">{formData?.rating_chain?.senior_rater?.dodid || "Not entered"}</p>
+                    </div>
+                    <div>
+                      <span className="text-gray-400">PMOSC/Branch:</span>
+                      <p className="font-medium">{formData?.rating_chain?.senior_rater?.pmos_branch || "Not entered"}</p>
+                    </div>
+                    <div>
+                      <span className="text-gray-400">Duty Assignment:</span>
+                      <p className="font-medium">{formData?.rating_chain?.senior_rater?.duty_assignment || "Not entered"}</p>
+                    </div>
+                    <div>
+                      <span className="text-gray-400">Organization:</span>
+                      <p className="font-medium">{formData?.rating_chain?.senior_rater?.organization || "Not entered"}</p>
                     </div>
                     <div>
                       <span className="text-gray-400">Email:</span>
