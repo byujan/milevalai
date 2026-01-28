@@ -105,7 +105,7 @@ The app uses a language model called "llama3.2". Let's download it:
 
 1. **Find the GitHub repository URL**
    - Ask your cofounder for the GitHub link
-   - It looks like: `https://github.com/username/milevalai`
+   - It looks like: `https://github.com/byujan/milevalai`
 
 2. **Open Terminal** (Mac) or **Command Prompt** (Windows)
 
@@ -117,9 +117,8 @@ The app uses a language model called "llama3.2". Let's download it:
 
 4. **Download (clone) the code:**
    ```bash
-   git clone https://github.com/YOUR_USERNAME/milevalai
+   git clone https://github.com/byujan/milevalai
    ```
-   Replace `YOUR_USERNAME` with the actual GitHub username
 
 5. **Go into the folder:**
    ```bash
@@ -147,8 +146,8 @@ The app needs some secret keys to work (for the database). Your cofounder needs 
 
 2. **Paste this into the file** (ask your cofounder for the actual values):
    ```
-   NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
-   NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key-here
+   NEXT_PUBLIC_SUPABASE_URL=https://johoielxyulapyxmipgc.supabase.co
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpvaG9pZWx4eXVsYXB5eG1pcGdjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg1NjIyNjksImV4cCI6MjA4NDEzODI2OX0.gmHHD_Gdw4gOLqR9-8WBakz22jX4yUGgYZ4vrXQeFUA
    ```
 
 3. **Save and close the file**
